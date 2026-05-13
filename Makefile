@@ -246,18 +246,11 @@ lint-cli:
 
 .PHONY: lint-install
 lint-install:
-	uv run --project scripts/install --locked pre-commit run --files $$(git ls-files --cached --others --exclude-standard -- \
-		'scripts/install/pyproject.toml' \
-		'scripts/install/src/**/*.py' \
-		'scripts/install/tests/*.py' \
-		'scripts/install/uv.lock')
+	bash scripts/lint-python-component.sh scripts/install
 
 .PHONY: lint-plugin
 lint-plugin:
-	uv run --project plugins/cq --locked pre-commit run --files $$(git ls-files --cached --others --exclude-standard -- \
-		'plugins/cq/pyproject.toml' \
-		'plugins/cq/scripts/*.py' \
-		'plugins/cq/uv.lock')
+	bash scripts/lint-python-component.sh plugins/cq
 
 .PHONY: lint-schema-go
 lint-schema-go:
@@ -265,10 +258,7 @@ lint-schema-go:
 
 .PHONY: lint-schema-python
 lint-schema-python: sync-schema
-	uv run --project schema/python --locked pre-commit run --files $$(git ls-files --cached --others --exclude-standard -- \
-		'schema/python/pyproject.toml' \
-		'schema/python/src/**/*.py' \
-		'schema/python/uv.lock')
+	bash scripts/lint-python-component.sh schema/python
 
 .PHONY: lint-schema
 lint-schema: lint-schema-go lint-schema-python
@@ -279,17 +269,11 @@ lint-sdk-go: check-prompts-sync-sdk-go
 
 .PHONY: lint-sdk-python
 lint-sdk-python: check-prompts-sync-sdk-python sync-schema
-	uv run --project sdk/python --locked pre-commit run --files $$(git ls-files --cached --others --exclude-standard -- \
-		'sdk/python/pyproject.toml' \
-		'sdk/python/src/**/*.py' \
-		'sdk/python/uv.lock')
+	bash scripts/lint-python-component.sh sdk/python
 
 .PHONY: lint-server-backend
 lint-server-backend:
-	uv run --project server/backend --locked pre-commit run --files $$(git ls-files --cached --others --exclude-standard -- \
-		'server/backend/pyproject.toml' \
-		'server/backend/src/**/*.py' \
-		'server/backend/uv.lock')
+	bash scripts/lint-python-component.sh server/backend
 
 .PHONY: lint-server-frontend
 lint-server-frontend:
