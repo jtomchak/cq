@@ -21,9 +21,8 @@ dependencies = [
 
 [project.optional-dependencies]
 semsearch = [
-    "sqlite_vec",
-    "numpy",
-    "httpx",
+    "sqlite_vec~=0.1.9",
+    "numpy==2.*",
 ]
 
 [project.scripts]
@@ -61,6 +60,6 @@ namespaces = false
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
-log_cli = false
+log_cli = true
 log_cli_level = "DEBUG"
 log_level = "DEBUG"

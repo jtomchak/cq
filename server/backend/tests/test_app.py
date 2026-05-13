@@ -8,9 +8,9 @@ from typing import Any
 import pytest
 from fastapi.testclient import TestClient
 
-from cq_server import semsearch
 from cq_server.api.deps import require_api_key
 from cq_server.app import app
+import cq_server.semsearch as semsearch
 
 TEST_USERNAME = "test-user"
 
@@ -259,7 +259,7 @@ class TestQuery:
         if not semsearch.is_enabled():
             pytest.skip("semantic dependencies are not enabled")
         try:
-            asyncio.run(semsearch._get_embeddings(["connectivity check"]))
+            asyncio.run(semsearch.queries._get_embeddings(["connectivity check"]))
         except Exception as exc:
             pytest.skip(f"embedding server unavailable: {exc}")
 
