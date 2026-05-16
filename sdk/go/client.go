@@ -4,8 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"time"
+
+	"github.com/mozilla-ai/cq/sdk/go/discovery"
 )
 
 // Client-level defaults and bounds for query parameters and new knowledge units.
@@ -35,6 +38,7 @@ type Client struct {
 	store   *localStore
 	remote  *remoteClient
 	timeout time.Duration
+	logger  *slog.Logger
 }
 
 // NewClient creates a new cq client.
@@ -47,14 +51,27 @@ func NewClient(opts ...ClientOption) (*Client, error) {
 		return nil, err
 	}
 
+	logger := cfg.logger
+	if logger == nil {
+		logger = slog.New(slog.DiscardHandler)
+	}
+
 	s, err := newLocalStore(cfg.localDBPath)
 	if err != nil {
 		return nil, fmt.Errorf("opening local store: %w", err)
 	}
 
-	c := &Client{store: s, timeout: cfg.timeout}
+	c := &Client{store: s, timeout: cfg.timeout, logger: logger}
 	if cfg.addr != "" {
-		c.remote = newRemoteClient(cfg.addr, cfg.apiKey, cfg.timeout)
+		resolverOpts := []discovery.Option{discovery.WithLogger(logger)}
+		if cacheDir, dirErr := discovery.DefaultCacheDir(); dirErr == nil {
+			resolverOpts = append(resolverOpts, discovery.WithCacheDir(cacheDir))
+		}
+		resolver, err := discovery.New(resolverOpts...)
+		if err != nil {
+			return nil, fmt.Errorf("init discovery resolver: %w", err)
+		}
+		c.remote = newRemoteClient(cfg.addr, cfg.apiKey, cfg.timeout, resolver)
 	}
 
 	return c, nil
